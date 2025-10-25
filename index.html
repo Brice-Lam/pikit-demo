@@ -1,0 +1,3044 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pikit - Partage Local de Ressources</title>
+    <style>
+        :root {
+            --color-primary: #65B32E;
+            --color-primary-hover: #5a9e28;
+            --color-secondary: #EDE14A;
+            --color-background: #F5F5F5;
+            --color-surface: #FFFFFF;
+            --color-text: #212121;
+            --color-text-secondary: #757575;
+            --color-border: #E0E0E0;
+            --color-success: #4CAF50;
+            --color-warning: #FFC107;
+            --color-error: #F44336;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .header {
+            background: #EDE14A;
+            color: #333;
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-leaf {
+            font-size: 28px;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .icon-btn {
+            background: rgba(101,179,46,0.15);
+            border: none;
+            color: #65B32E;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(101,179,46,0.25);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 8px;
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 8px 12px;
+            align-items: center;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        .search-bar input::placeholder {
+            color: var(--color-text-secondary);
+        }
+
+        .search-bar span {
+            color: #65B32E;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            overflow-x: auto;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: white;
+            color: var(--color-text);
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        /* Annonce Card */
+        .annonce-card {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .annonce-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .annonce-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            position: relative;
+        }
+
+        .annonce-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .annonce-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--color-secondary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .annonce-content {
+            padding: 16px;
+        }
+
+        .annonce-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .annonce-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+
+        .annonce-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--color-primary);
+            white-space: nowrap;
+        }
+
+        .annonce-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .annonce-description {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 414px;
+            width: 100%;
+            background: white;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: color 0.3s;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: var(--color-primary);
+        }
+
+        .nav-item:hover {
+            color: var(--color-primary);
+        }
+
+        .nav-item-icon {
+            font-size: 24px;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: calc(50% - 187px);
+            width: 56px;
+            height: 56px;
+            background: var(--color-secondary);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            z-index: 50;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .modal-close:hover {
+            background: var(--color-background);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            color: var(--color-text);
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .image-upload {
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-sm);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        .image-upload:hover {
+            border-color: var(--color-primary);
+            background: rgba(76, 175, 80, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        /* Profile Screen */
+        .profile-header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #66BB6A 100%);
+            color: white;
+            padding: 32px 16px;
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .profile-bio {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: white;
+            margin: -20px 16px 16px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--color-primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        .menu-list {
+            background: white;
+            border-radius: var(--radius-md);
+            margin: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .menu-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background: var(--color-background);
+        }
+
+        .menu-item-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-item-icon {
+            font-size: 20px;
+            color: var(--color-primary);
+            width: 32px;
+            text-align: center;
+        }
+
+        .menu-item-text {
+            font-size: 15px;
+            color: var(--color-text);
+        }
+
+        .menu-item-arrow {
+            color: var(--color-text-secondary);
+            font-size: 20px;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #66BB6A 100%);
+            color: white;
+        }
+
+        .welcome-logo {
+            width: 180px;
+            margin-bottom: 24px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            max-width: 300px;
+        }
+
+        .welcome-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 18px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            background: white;
+            border-bottom: 1px solid var(--color-border);
+            overflow-x: auto;
+        }
+
+        .filter-chip {
+            padding: 6px 12px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: white;
+            color: var(--color-text);
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .filter-chip.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* Impact Dashboard */
+        .impact-card {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .impact-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--color-text);
+        }
+
+        .impact-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .impact-stat:last-child {
+            border-bottom: none;
+        }
+
+        .impact-label {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .impact-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Messages */
+        .messages-list {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .message-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid var(--color-border);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .message-item:hover {
+            background: var(--color-background);
+        }
+
+        .message-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .message-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .message-text {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .message-unread {
+            background: rgba(76, 175, 80, 0.05);
+        }
+
+        .message-badge {
+            width: 8px;
+            height: 8px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            margin-left: 4px;
+        }
+
+        /* Chat Screen */
+        .chat-screen {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .chat-header {
+            background: var(--color-primary);
+            color: white;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-user-info {
+            flex: 1;
+        }
+
+        .chat-user-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .chat-user-status {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: var(--color-background);
+        }
+
+        .chat-bubble {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            word-wrap: break-word;
+        }
+
+        .chat-bubble-received {
+            background: white;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-bubble-sent {
+            background: var(--color-primary);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-bubble-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .chat-input-container {
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid var(--color-border);
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chat-send-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background 0.3s;
+        }
+
+        .chat-send-btn:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .message-status {
+            font-size: 10px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 2px;
+        }
+
+        .chat-attachment-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-image {
+            max-width: 200px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        /* Photo Upload Preview */
+        .photo-preview-container {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .photo-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            border: 2px solid var(--color-border);
+            position: relative;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--color-error);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .image-upload-input {
+            display: none;
+        }
+
+        /* Map Container */
+        .map-container {
+            width: 100%;
+            height: 400px;
+            border-radius: var(--radius-sm);
+            margin-top: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+        }
+
+        .map-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .map-marker {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            font-size: 40px;
+            cursor: pointer;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            z-index: 10;
+        }
+
+        .map-placeholder {
+            text-align: center;
+            color: var(--color-text-secondary);
+        }
+
+        .map-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .location-display {
+            background: white;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--color-border);
+        }
+
+        .location-text {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="welcome-screen" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/59155449/35bcc154-2b93-4402-854e-86976964abd9/photo-arriere-plan-accueil-corbeille-de-fruits.jpg') center/cover; position: relative;">
+            <img src="https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/59155449/a6089faa-cafe-4a11-a14b-8989bd181a88/logo-pikit-monochrome-blanc-01.jpg" class="welcome-logo" alt="Pikit" style="filter: brightness(1.2);">
+            <h1 class="welcome-title">Bienvenue sur Pikit</h1>
+            <p class="welcome-subtitle">Partagez des fruits et légumes locaux avec votre communauté</p>
+            <div class="welcome-buttons">
+                <button class="btn btn-primary btn-large" onclick="showScreen('login')">Se connecter</button>
+                <button class="btn btn-outline btn-large" onclick="showScreen('signup')">Créer un compte</button>
+            </div>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="hidden">
+            <div style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/59155449/35bcc154-2b93-4402-854e-86976964abd9/photo-arriere-plan-accueil-corbeille-de-fruits.jpg') center/cover; padding: 80px 24px 40px; text-align: center; position: relative;">
+                <img src="https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/59155449/a6089faa-cafe-4a11-a14b-8989bd181a88/logo-pikit-monochrome-blanc-01.jpg" style="width: 160px; margin-bottom: 24px; filter: brightness(1.2);" alt="Pikit Logo">
+                <h2 style="color: white; font-size: 28px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Connexion</h2>
+                <p style="color: #EDE14A; font-size: 16px; margin-top: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Rejoignez votre communauté</p>
+            </div>
+            <div style="padding: 24px; background: #f5f5f5;">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" placeholder="votre@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mot de passe</label>
+                        <input type="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Se connecter</button>
+                    <p style="text-align: center; margin-top: 16px; color: var(--color-text-secondary); font-size: 14px;">
+                        Pas encore de compte ? 
+                        <a href="#" onclick="showScreen('signup'); return false;" style="color: var(--color-primary); font-weight: 600;">S'inscrire</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Signup Screen -->
+        <div id="signupScreen" class="hidden">
+            <div style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/59155449/35bcc154-2b93-4402-854e-86976964abd9/photo-arriere-plan-accueil-corbeille-de-fruits.jpg') center/cover; padding: 60px 24px 32px; text-align: center; position: relative;">
+                <img src="https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/59155449/a6089faa-cafe-4a11-a14b-8989bd181a88/logo-pikit-monochrome-blanc-01.jpg" style="width: 140px; margin-bottom: 16px; filter: brightness(1.2);" alt="Pikit Logo">
+                <h2 style="color: white; font-size: 24px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Créer un compte</h2>
+                <p style="color: #EDE14A; font-size: 14px; margin-top: 6px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Commencez à partager</p>
+            </div>
+            <div style="padding: 24px; background: #f5f5f5;">
+                <form onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label class="form-label">Nom complet</label>
+                        <input type="text" class="form-input" placeholder="Jean Dupont" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" placeholder="votre@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Téléphone</label>
+                        <input type="tel" class="form-input" placeholder="06 12 34 56 78" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Localisation</label>
+                        <input type="text" class="form-input" placeholder="Fort-de-France, Martinique" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mot de passe</label>
+                        <input type="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type de compte</label>
+                        <select class="form-select">
+                            <option>Particulier</option>
+                            <option>Petit producteur</option>
+                            <option>Professionnel</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Créer mon compte</button>
+                    <p style="text-align: center; margin-top: 16px; color: var(--color-text-secondary); font-size: 14px;">
+                        Déjà membre ? 
+                        <a href="#" onclick="showScreen('login'); return false;" style="color: var(--color-primary); font-weight: 600;">Se connecter</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="mainApp" class="hidden">
+            <!-- Header -->
+            <div class="header" style="background: #EDE14A;">
+                <div class="header-top">
+                <div class="logo">
+                    <img src="https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/59155449/18f0f174-cd6f-482e-b638-3df747ad848f/logo-pikit-RVB-03.jpg" style="height: 40px;" alt="Pikit">
+                </div>
+                <div class="header-icons">
+                        <button class="icon-btn" onclick="alert('Notifications : Fonctionnalité à venir')">🔔</button>
+                        <button class="icon-btn" onclick="openModal('messagesModal')">💬</button>
+                        <div id="topBarAvatar" class="icon-btn" onclick="switchTab('profile')" style="padding: 0; overflow: hidden; cursor: pointer;">
+                            👤
+                        </div>
+                    </div>
+                </div>
+                <div class="search-bar">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Rechercher des produits..." onkeyup="filterAnnonces(this.value)">
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs" id="navTabs">
+                <div class="nav-tab active" onclick="filterByCategory('all')">Tous</div>
+                <div class="nav-tab" onclick="filterByCategory('fruits')">Fruits 🍊</div>
+                <div class="nav-tab" onclick="filterByCategory('legumes')">Légumes 🥕</div>
+                <div class="nav-tab" onclick="filterByCategory('echange')">Échange</div>
+                <div class="nav-tab" onclick="filterByCategory('gratuit')">Gratuit</div>
+            </div>
+
+            <!-- Content -->
+            <div id="contentArea" class="content">
+                <!-- Annonces List -->
+                <div id="annoncesList"></div>
+
+                <!-- Profile View -->
+                <div id="profileView" class="hidden">
+                    <div class="profile-header">
+                        <input type="file" id="profilePhotoInput" class="image-upload-input" accept="image/*" onchange="handleProfilePhotoUpload(event)">
+                        <div class="profile-avatar" id="profileAvatar" onclick="document.getElementById('profilePhotoInput').click()" style="cursor: pointer; position: relative;">
+                            👤
+                            <div style="position: absolute; bottom: 0; right: 0; background: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--color-primary); font-size: 16px;">📷</div>
+                        </div>
+                        <h2 class="profile-name">Marie Lefèvre</h2>
+                        <p class="profile-bio">Jardinière passionnée • Fort-de-France</p>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">24</span>
+                            <span class="stat-label">Échanges</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="userAnnoncesCount">0</span>
+                            <span class="stat-label">Annonces</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">4.8</span>
+                            <span class="stat-label">Note</span>
+                        </div>
+                    </div>
+                    <div class="menu-list">
+                        <div class="menu-item" onclick="showMyAnnonces()">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">📝</span>
+                                <span class="menu-item-text">Mes annonces</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="alert('Fonctionnalité Favoris : À venir')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">⭐</span>
+                                <span class="menu-item-text">Mes favoris</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="alert('Fonctionnalité Rendez-vous : À venir')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">📅</span>
+                                <span class="menu-item-text">Mes rendez-vous</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="switchTab('impact')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">🌍</span>
+                                <span class="menu-item-text">Mon impact</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="openModal('recommendationsModal')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">🤖</span>
+                                <span class="menu-item-text">Recommandations IA</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="openModal('settingsModal')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">⚙️</span>
+                                <span class="menu-item-text">Paramètres</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Impact View -->
+                <div id="impactView" class="hidden">
+                    <div class="impact-card">
+                        <h3 class="impact-title">🌍 Votre Impact Écologique</h3>
+                        <div class="impact-stat">
+                            <span class="impact-label">CO2 économisé</span>
+                            <span class="impact-value">32 kg</span>
+                        </div>
+                        <div class="impact-stat">
+                            <span class="impact-label">Gaspillage évité</span>
+                            <span class="impact-value">48 kg</span>
+                        </div>
+                        <div class="impact-stat">
+                            <span class="impact-label">Distance parcourue évitée</span>
+                            <span class="impact-value">120 km</span>
+                        </div>
+                    </div>
+                    <div class="impact-card">
+                        <h3 class="impact-title">🤝 Communauté</h3>
+                        <div class="impact-stat">
+                            <span class="impact-label">Personnes aidées</span>
+                            <span class="impact-value">15</span>
+                        </div>
+                        <div class="impact-stat">
+                            <span class="impact-label">Échanges réalisés</span>
+                            <span class="impact-value">24</span>
+                        </div>
+                        <div class="impact-stat">
+                            <span class="impact-label">Économie locale</span>
+                            <span class="impact-value">240 €</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Action Button -->
+            <button class="fab" onclick="openModal('publishModal')">+</button>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="switchTab('home')">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Accueil</span>
+                </div>
+                <div class="nav-item" onclick="switchTab('search')">
+                    <span class="nav-item-icon">🔍</span>
+                    <span>Recherche</span>
+                </div>
+                <div class="nav-item" onclick="switchTab('impact')">
+                    <span class="nav-item-icon">🌍</span>
+                    <span>Impact</span>
+                </div>
+                <div class="nav-item" onclick="switchTab('profile')">
+                    <span class="nav-item-icon">👤</span>
+                    <span>Profil</span>
+                </div>
+                <div class="nav-item" onclick="switchTab('garden')">
+                    <span class="nav-item-icon">🌱</span>
+                    <span>Jardin</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Annonce Detail Modal -->
+        <div id="annonceDetailModal" class="modal">
+            <div class="modal-content" style="max-width: 100%; height: 100%; margin: 0; border-radius: 0;">
+                <div style="display: flex; flex-direction: column; height: 100vh;">
+                    <div style="background: var(--color-primary); color: white; padding: 16px; display: flex; align-items: center; gap: 12px;">
+                        <button class="back-btn" onclick="closeModal('annonceDetailModal')">←</button>
+                        <h2 style="flex: 1; font-size: 18px; font-weight: 600;">Détail de l'annonce</h2>
+                    </div>
+                    <div id="annonceDetailContent" style="flex: 1; overflow-y: auto; background: var(--color-background);"></div>
+                    <div style="padding: 16px; background: white; border-top: 1px solid var(--color-border); display: flex; gap: 12px;">
+                        <button class="btn btn-outline" style="flex: 1;" onclick="closeModal('annonceDetailModal')">Retour</button>
+                        <button class="btn btn-primary" style="flex: 1;" onclick="contactSeller()">Contacter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Garden Advice View -->
+        <div id="gardenView" class="hidden" style="padding: 16px; padding-bottom: 80px;">
+            <div class="impact-card">
+                <h3 class="impact-title">🌱 Conseils de Jardinage IA</h3>
+                <p style="color: var(--color-text-secondary); font-size: 14px; margin-bottom: 16px;">Obtenez des conseils personnalisés pour votre jardin en Martinique</p>
+                
+                <div class="form-group">
+                    <label class="form-label">Quel est votre besoin ?</label>
+                    <select id="gardenTopicSelect" class="form-select" onchange="updateGardenAdvice()">
+                        <option value="">Choisissez un sujet...</option>
+                        <option value="planting">🌱 Quand planter ?</option>
+                        <option value="watering">💧 Arrosage optimal</option>
+                        <option value="pests">🐛 Lutter contre les nuisibles</option>
+                        <option value="fertilizer">🌿 Fertilisation naturelle</option>
+                        <option value="harvest">🥭 Période de récolte</option>
+                        <option value="tropical">🌴 Cultiver en climat tropical</option>
+                    </select>
+                </div>
+                
+                <div id="gardenAdviceContent" style="margin-top: 20px;"></div>
+            </div>
+            
+            <div class="impact-card">
+                <h3 class="impact-title">📅 Calendrier de Saison</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <div style="background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+                        <div style="font-weight: 600; color: var(--color-primary); margin-bottom: 4px;">🥭 Mangues</div>
+                        <div style="font-size: 13px; color: var(--color-text-secondary);">Mai - Septembre</div>
+                    </div>
+                    <div style="background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+                        <div style="font-weight: 600; color: var(--color-primary); margin-bottom: 4px;">🍅 Tomates</div>
+                        <div style="font-size: 13px; color: var(--color-text-secondary);">Toute l'année</div>
+                    </div>
+                    <div style="background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+                        <div style="font-weight: 600; color: var(--color-primary); margin-bottom: 4px;">🥑 Avocats</div>
+                        <div style="font-size: 13px; color: var(--color-text-secondary);">Janvier - Juin</div>
+                    </div>
+                    <div style="background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+                        <div style="font-weight: 600; color: var(--color-primary); margin-bottom: 4px;">🫑 Christophines</div>
+                        <div style="font-size: 13px; color: var(--color-text-secondary);">Mars - Août</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Publish Modal -->
+        <div id="publishModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Publier une annonce</h2>
+                    <button class="modal-close" onclick="closeModal('publishModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="handlePublish(event)">
+                        <div class="form-group">
+                            <label class="form-label">Photo du produit</label>
+                            <input type="file" id="photoInput" class="image-upload-input" accept="image/*" onchange="handlePhotoUpload(event)">
+                            <div class="image-upload" onclick="document.getElementById('photoInput').click()">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">Ajouter une photo</div>
+                            </div>
+                            <div id="photoPreviewContainer" class="photo-preview-container"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Type de produit</label>
+                            <select class="form-select" required>
+                                <option value="">Sélectionner...</option>
+                                <option>🍊 Fruits</option>
+                                <option>🥕 Légumes</option>
+                                <option>🌿 Herbes aromatiques</option>
+                                <option>🌱 Plants & Graines</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nom du produit</label>
+                            <input type="text" class="form-input" placeholder="Ex: Mangues Julie" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Quantité disponible</label>
+                            <input type="text" class="form-input" placeholder="Ex: 5 kg" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Type d'échange</label>
+                            <select class="form-select" required>
+                                <option value="">Sélectionner...</option>
+                                <option>Gratuit</option>
+                                <option>Échange</option>
+                                <option>Vente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Prix (si vente)</label>
+                            <input type="text" class="form-input" placeholder="Ex: 5€/kg">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-textarea" placeholder="Décrivez votre produit..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Lieu de retrait</label>
+                            <input type="text" id="locationInput" class="form-input" placeholder="Fort-de-France" required>
+                            <button type="button" class="btn btn-outline btn-small" onclick="selectLocationOnMap()" style="margin-top: 8px; width: 100%;">
+                                📍 Sélectionner sur la carte
+                            </button>
+                            <div id="locationDisplay" class="hidden location-display">
+                                <span>📍</span>
+                                <span id="selectedLocation" class="location-text"></span>
+                                <button type="button" class="btn-small" onclick="clearLocation()">Modifier</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Publier l'annonce</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Modal -->
+        <div id="messagesModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Messages</h2>
+                    <button class="modal-close" onclick="closeModal('messagesModal')">×</button>
+                </div>
+                <div class="modal-body" style="padding: 0;">
+                    <div class="messages-list" id="messagesList">
+                        <div class="message-item message-unread" onclick="openChat('Sophie D.')">
+                            <div class="message-avatar">👩</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-name">Sophie D.</span>
+                                    <span class="message-time">10:30</span>
+                                </div>
+                                <div class="message-text">Bonjour, les avocats sont toujours disponibles ?</div>
+                            </div>
+                            <div class="message-badge"></div>
+                        </div>
+                        <div class="message-item" onclick="openChat('Jean-Pierre M.')">
+                            <div class="message-avatar">👨</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-name">Jean-Pierre M.</span>
+                                    <span class="message-time">Hier</span>
+                                </div>
+                                <div class="message-text">Merci pour les tomates, excellente qualité !</div>
+                            </div>
+                        </div>
+                        <div class="message-item" onclick="openChat('André B.')">
+                            <div class="message-avatar">👴</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-name">André B.</span>
+                                    <span class="message-time">20/10</span>
+                                </div>
+                                <div class="message-text">Je peux passer demain matin vers 9h ?</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Screen Modal -->
+        <div id="chatModal" class="modal">
+            <div class="modal-content" style="max-width: 100%; height: 100%; margin: 0; border-radius: 0;">
+                <div class="chat-screen">
+                    <div class="chat-header">
+                        <button class="back-btn" onclick="closeChat()">←</button>
+                        <div class="chat-user-info">
+                            <div class="chat-user-name" id="chatUserName">Sophie D.</div>
+                            <div class="chat-user-status">En ligne</div>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-bubble chat-bubble-received">
+                            <div>Bonjour, les avocats sont toujours disponibles ?</div>
+                            <div class="chat-bubble-time">10:30</div>
+                        </div>
+                        <div class="chat-bubble chat-bubble-sent">
+                            <div>Oui tout à fait ! Vous pouvez passer quand ?</div>
+                            <div class="chat-bubble-time">10:32</div>
+                        </div>
+                        <div class="chat-bubble chat-bubble-received">
+                            <div>Super ! Je peux passer cet après-midi vers 15h ?</div>
+                            <div class="chat-bubble-time">10:35</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="file" id="chatPhotoInput" class="image-upload-input" accept="image/*" onchange="handleChatPhotoUpload(event)">
+                        <button class="chat-attachment-btn" onclick="document.getElementById('chatPhotoInput').click()">📎</button>
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Écrire un message..." onkeypress="handleChatKeyPress(event)">
+                        <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Paramètres</h2>
+                    <button class="modal-close" onclick="closeModal('settingsModal')">×</button>
+                </div>
+                <div class="modal-body" style="padding: 0;">
+                    <div class="menu-list" style="margin: 0; box-shadow: none;">
+                        <div class="menu-item" onclick="openModal('notificationsModal'); closeModal('settingsModal')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">🔔</span>
+                                <span class="menu-item-text">Notifications</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="openModal('privacyModal'); closeModal('settingsModal')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">🔒</span>
+                                <span class="menu-item-text">Confidentialité et données</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="openModal('accountModal'); closeModal('settingsModal')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">👤</span>
+                                <span class="menu-item-text">Compte</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="openModal('helpModal'); closeModal('settingsModal')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">❓</span>
+                                <span class="menu-item-text">Aide et support</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="openModal('legalModal'); closeModal('settingsModal')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">📄</span>
+                                <span class="menu-item-text">Mentions légales</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="openModal('languageModal'); closeModal('settingsModal')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">🌍</span>
+                                <span class="menu-item-text">Langue / Language</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="openModal('aboutModal'); closeModal('settingsModal')">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon">ℹ️</span>
+                                <span class="menu-item-text">À propos de Pikit</span>
+                            </div>
+                            <span class="menu-item-arrow">›</span>
+                        </div>
+                        <div class="menu-item" onclick="if(confirm('Voulez-vous vraiment vous déconnecter ?')) { showScreen('welcome'); }" style="border-top: 2px solid var(--color-border); margin-top: 8px;">
+                            <div class="menu-item-content">
+                                <span class="menu-item-icon" style="color: var(--color-error);">🚪</span>
+                                <span class="menu-item-text" style="color: var(--color-error); font-weight: 600;">Se déconnecter</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Settings Modal -->
+        <div id="notificationsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Notifications</h2>
+                    <button class="modal-close" onclick="closeModal('notificationsModal'); openModal('settingsModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                            <span class="form-label" style="margin: 0;">Nouveaux messages</span>
+                            <input type="checkbox" checked style="width: 20px; height: 20px;">
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                            <span class="form-label" style="margin: 0;">Nouvelles annonces à proximité</span>
+                            <input type="checkbox" checked style="width: 20px; height: 20px;">
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                            <span class="form-label" style="margin: 0;">Rappels de rendez-vous</span>
+                            <input type="checkbox" checked style="width: 20px; height: 20px;">
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                            <span class="form-label" style="margin: 0;">Conseils jardinage hebdomadaires</span>
+                            <input type="checkbox" style="width: 20px; height: 20px;">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Modal -->
+        <div id="privacyModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Confidentialité et données</h2>
+                    <button class="modal-close" onclick="closeModal('privacyModal'); openModal('settingsModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-text);">🔒 Protection de vos données</h3>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 20px;">
+                        Pikit est conforme au RGPD (Règlement Général sur la Protection des Données). Vos données personnelles sont stockées de manière sécurisée et ne sont jamais partagées avec des tiers sans votre consentement explicite.
+                    </p>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                            <span class="form-label" style="margin: 0;">Profil public</span>
+                            <input type="checkbox" checked style="width: 20px; height: 20px;">
+                        </label>
+                        <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">Votre profil est visible par tous les utilisateurs</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                            <span class="form-label" style="margin: 0;">Géolocalisation</span>
+                            <input type="checkbox" checked style="width: 20px; height: 20px;">
+                        </label>
+                        <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">Permet de trouver des annonces près de chez vous</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                            <span class="form-label" style="margin: 0;">Analyses anonymisées</span>
+                            <input type="checkbox" style="width: 20px; height: 20px;">
+                        </label>
+                        <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">Aide à améliorer l'application</p>
+                    </div>
+
+                    <div style="background: rgba(76, 175, 80, 0.1); padding: 16px; border-radius: var(--radius-sm); margin-top: 20px; border-left: 4px solid var(--color-primary);">
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">📋 Vos droits RGPD</h4>
+                        <ul style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.8; margin: 0; padding-left: 20px;">
+                            <li>Droit d'accès à vos données</li>
+                            <li>Droit de rectification</li>
+                            <li>Droit à l'effacement ("droit à l'oubli")</li>
+                            <li>Droit à la portabilité</li>
+                            <li>Droit d'opposition au traitement</li>
+                        </ul>
+                    </div>
+
+                    <button class="btn btn-outline" style="width: 100%; margin-top: 16px;" onclick="alert('Demande envoyée ! Nous vous contacterons dans les 30 jours conformément au RGPD.')">
+                        Télécharger mes données
+                    </button>
+                    <button class="btn btn-outline" style="width: 100%; margin-top: 8px; color: var(--color-error); border-color: var(--color-error);" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer définitivement votre compte et toutes vos données ?')) alert('Demande de suppression enregistrée. Vos données seront supprimées sous 30 jours.')">
+                        Supprimer mon compte
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Settings Modal -->
+        <div id="accountModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Paramètres du compte</h2>
+                    <button class="modal-close" onclick="closeModal('accountModal'); openModal('settingsModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Nom complet</label>
+                        <input type="text" class="form-input" value="Marie Lefèvre">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" value="marie.lefevre@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Téléphone</label>
+                        <input type="tel" class="form-input" value="06 96 12 34 56">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Localisation</label>
+                        <input type="text" class="form-input" value="Fort-de-France, Martinique">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bio</label>
+                        <textarea class="form-textarea" placeholder="Parlez de vous...">Jardinière passionnée</textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveProfileChanges()">
+                        Enregistrer les modifications
+                    </button>
+                    <button class="btn btn-outline" style="width: 100%; margin-top: 12px;" onclick="openModal('changePasswordModal'); closeModal('accountModal')">
+                        Changer le mot de passe
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div id="helpModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Aide et support</h2>
+                    <button class="modal-close" onclick="closeModal('helpModal'); openModal('settingsModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">❓ Questions fréquentes</h3>
+                    
+                    <details style="margin-bottom: 16px; padding: 12px; background: var(--color-background); border-radius: var(--radius-sm);">
+                        <summary style="font-weight: 600; cursor: pointer; color: var(--color-text);">Comment publier une annonce ?</summary>
+                        <p style="margin-top: 12px; font-size: 14px; color: var(--color-text-secondary); line-height: 1.6;">
+                            Cliquez sur le bouton orange "+" en bas à droite, remplissez le formulaire avec les informations de votre produit, ajoutez des photos et validez.
+                        </p>
+                    </details>
+
+                    <details style="margin-bottom: 16px; padding: 12px; background: var(--color-background); border-radius: var(--radius-sm);">
+                        <summary style="font-weight: 600; cursor: pointer; color: var(--color-text);">Comment contacter un vendeur ?</summary>
+                        <p style="margin-top: 12px; font-size: 14px; color: var(--color-text-secondary); line-height: 1.6;">
+                            Cliquez sur une annonce, puis sur "Contacter" pour envoyer un message privé au vendeur.
+                        </p>
+                    </details>
+
+                    <details style="margin-bottom: 16px; padding: 12px; background: var(--color-background); border-radius: var(--radius-sm);">
+                        <summary style="font-weight: 600; cursor: pointer; color: var(--color-text);">L'application est-elle gratuite ?</summary>
+                        <p style="margin-top: 12px; font-size: 14px; color: var(--color-text-secondary); line-height: 1.6;">
+                            Oui, Pikit est 100% gratuite. Nous ne prenons aucune commission sur vos échanges.
+                        </p>
+                    </details>
+
+                    <details style="margin-bottom: 16px; padding: 12px; background: var(--color-background); border-radius: var(--radius-sm);">
+                        <summary style="font-weight: 600; cursor: pointer; color: var(--color-text);">Mes données sont-elles protégées ?</summary>
+                        <p style="margin-top: 12px; font-size: 14px; color: var(--color-text-secondary); line-height: 1.6;">
+                            Oui, Pikit est conforme au RGPD. Vos données sont sécurisées et ne sont jamais partagées sans votre accord.
+                        </p>
+                    </details>
+
+                    <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 12px;">📧 Nous contacter</h3>
+                    <button class="btn btn-outline" style="width: 100%; margin-bottom: 8px;" onclick="alert('Email: support@pikit-app.com')">
+                        Envoyer un email
+                    </button>
+                    <button class="btn btn-outline" style="width: 100%;" onclick="alert('Signalement envoyé ! Nous traiterons votre demande rapidement.')">
+                        Signaler un problème
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legal Modal -->
+        <div id="legalModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Mentions légales</h2>
+                    <button class="modal-close" onclick="closeModal('legalModal'); openModal('settingsModal')">×</button>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-primary);">📄 Conditions d'utilisation</h3>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 20px;">
+                        En utilisant Pikit, vous acceptez les présentes conditions d'utilisation. Pikit est une plateforme de mise en relation entre particuliers et professionnels pour l'échange de produits alimentaires locaux.
+                    </p>
+
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-primary);">🔒 Politique de confidentialité (RGPD)</h3>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 12px;">
+                        <strong>Responsable du traitement :</strong> Pikit SAS, Fort-de-France, Martinique
+                    </p>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 12px;">
+                        <strong>Données collectées :</strong>
+                    </p>
+                    <ul style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 16px; padding-left: 20px;">
+                        <li>Informations d'identification (nom, email, téléphone)</li>
+                        <li>Données de localisation (pour les annonces à proximité)</li>
+                        <li>Photos et contenus publiés</li>
+                        <li>Historique des échanges</li>
+                    </ul>
+
+                    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 12px;">
+                        <strong>Finalités du traitement :</strong>
+                    </p>
+                    <ul style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 16px; padding-left: 20px;">
+                        <li>Mise en relation entre utilisateurs</li>
+                        <li>Amélioration de l'expérience utilisateur</li>
+                        <li>Prévention de la fraude</li>
+                        <li>Recommandations personnalisées</li>
+                    </ul>
+
+                    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 12px;">
+                        <strong>Durée de conservation :</strong> Vos données sont conservées pendant la durée de votre utilisation active du service, puis archivées pendant 3 ans conformément aux obligations légales.
+                    </p>
+
+                    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 12px;">
+                        <strong>Vos droits :</strong> Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité de vos données. Pour exercer ces droits, contactez-nous à : dpo@pikit-app.com
+                    </p>
+
+                    <h3 style="font-size: 16px; font-weight: 600; margin: 20px 0 12px; color: var(--color-primary);">🍃 Charte environnementale</h3>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 16px;">
+                        Pikit s'engage pour la réduction du gaspillage alimentaire, la promotion des circuits courts et la préservation de l'environnement. Chaque échange contribue à réduire notre empreinte carbone collective.
+                    </p>
+
+                    <h3 style="font-size: 16px; font-weight: 600; margin: 20px 0 12px; color: var(--color-primary);">⚖️ Règles de la communauté</h3>
+                    <ul style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 16px; padding-left: 20px;">
+                        <li>Respect mutuel entre utilisateurs</li>
+                        <li>Publications honnêtes et véridiques</li>
+                        <li>Respect des normes de sécurité alimentaire</li>
+                        <li>Aucune revente commerciale sans autorisation</li>
+                        <li>Protection des données personnelles d'autrui</li>
+                    </ul>
+
+                    <p style="font-size: 13px; color: var(--color-text-secondary); margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--color-border);">
+                        <strong>Dernière mise à jour :</strong> 25 octobre 2025<br>
+                        <strong>Contact DPO :</strong> dpo@pikit-app.com<br>
+                        <strong>CNIL :</strong> Déclaration n°XXXXXX
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Modal -->
+        <div id="aboutModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">À propos de Pikit</h2>
+                    <button class="modal-close" onclick="closeModal('aboutModal'); openModal('settingsModal')">×</button>
+                </div>
+                <div class="modal-body" style="text-align: center;">
+                    <img src="https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/59155449/f1aa1595-1f50-43e6-99d9-9649bd07d7c3/logo-PIKIT-complet-RVB-01.jpg" style="width: 120px; margin-bottom: 20px;" alt="Pikit Logo">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: var(--color-primary);">Pikit Global</h3>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 20px;">Version 2.0.0 🌍</p>
+                    
+                    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; text-align: left; margin-bottom: 20px;">
+                        Pikit est devenue LA plateforme mondiale de partage alimentaire local, connectant des millions d'utilisateurs pour réduire le gaspillage et créer des communautés durables.
+                    </p>
+
+                    <div style="background: rgba(76, 175, 80, 0.1); padding: 16px; border-radius: var(--radius-sm); text-align: left; margin-bottom: 20px;">
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--color-primary);">🌱 Notre mission globale</h4>
+                        <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
+                            Révolutionner l'alimentation mondiale en créant un réseau intelligent de partage local. Chaque échange contribue à un futur plus durable, alimenté par l'IA et la communauté.
+                        </p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; text-align: left;">
+                        <div style="background: rgba(255, 152, 0, 0.1); padding: 12px; border-radius: var(--radius-sm);">
+                            <div style="font-weight: 600; color: var(--color-secondary);">2.5M+</div>
+                            <div style="font-size: 12px; color: var(--color-text-secondary);">Utilisateurs actifs</div>
+                        </div>
+                        <div style="background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: var(--radius-sm);">
+                            <div style="font-weight: 600; color: var(--color-primary);">180</div>
+                            <div style="font-size: 12px; color: var(--color-text-secondary);">Pays desservis</div>
+                        </div>
+                        <div style="background: rgba(33, 150, 243, 0.1); padding: 12px; border-radius: var(--radius-sm);">
+                            <div style="font-weight: 600; color: #2196F3;">1.2M T</div>
+                            <div style="font-size: 12px; color: var(--color-text-secondary);">Gaspillage évité</div>
+                        </div>
+                        <div style="background: rgba(156, 39, 176, 0.1); padding: 12px; border-radius: var(--radius-sm);">
+                            <div style="font-weight: 600; color: #9C27B0;">50M €</div>
+                            <div style="font-size: 12px; color: var(--color-text-secondary);">Économisés</div>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 24px;">
+                        © 2025 Pikit Global Inc. - Tous droits réservés<br>
+                        🌍 Présent dans le monde entier
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password Modal -->
+        <div id="changePasswordModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Changer le mot de passe</h2>
+                    <button class="modal-close" onclick="closeModal('changePasswordModal'); openModal('accountModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="changePassword(event)">
+                        <div class="form-group">
+                            <label class="form-label">Mot de passe actuel</label>
+                            <input type="password" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nouveau mot de passe</label>
+                            <input type="password" class="form-input" minlength="8" required>
+                            <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">Minimum 8 caractères</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirmer le nouveau mot de passe</label>
+                            <input type="password" class="form-input" minlength="8" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Modifier le mot de passe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Language Selector Modal -->
+        <div id="languageModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">🌍 Langue / Language</h2>
+                    <button class="modal-close" onclick="closeModal('languageModal')">×</button>
+                </div>
+                <div class="modal-body" style="padding: 0;">
+                    <div class="menu-list" style="margin: 0; box-shadow: none;">
+                        <div class="menu-item" onclick="changeLanguage('fr')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇫🇷</span>
+                                <span class="menu-item-text">Français</span>
+                            </div>
+                            <span class="menu-item-arrow" id="fr-check">✓</span>
+                        </div>
+                        <div class="menu-item" onclick="changeLanguage('en')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇺🇸</span>
+                                <span class="menu-item-text">English</span>
+                            </div>
+                            <span class="menu-item-arrow" id="en-check"></span>
+                        </div>
+                        <div class="menu-item" onclick="changeLanguage('es')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇪🇸</span>
+                                <span class="menu-item-text">Español</span>
+                            </div>
+                            <span class="menu-item-arrow" id="es-check"></span>
+                        </div>
+                        <div class="menu-item" onclick="changeLanguage('pt')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇧🇷</span>
+                                <span class="menu-item-text">Português</span>
+                            </div>
+                            <span class="menu-item-arrow" id="pt-check"></span>
+                        </div>
+                        <div class="menu-item" onclick="changeLanguage('de')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇩🇪</span>
+                                <span class="menu-item-text">Deutsch</span>
+                            </div>
+                            <span class="menu-item-arrow" id="de-check"></span>
+                        </div>
+                        <div class="menu-item" onclick="changeLanguage('it')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇮🇹</span>
+                                <span class="menu-item-text">Italiano</span>
+                            </div>
+                            <span class="menu-item-arrow" id="it-check"></span>
+                        </div>
+                        <div class="menu-item" onclick="changeLanguage('ja')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇯🇵</span>
+                                <span class="menu-item-text">日本語</span>
+                            </div>
+                            <span class="menu-item-arrow" id="ja-check"></span>
+                        </div>
+                        <div class="menu-item" onclick="changeLanguage('zh')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇨🇳</span>
+                                <span class="menu-item-text">中文</span>
+                            </div>
+                            <span class="menu-item-arrow" id="zh-check"></span>
+                        </div>
+                        <div class="menu-item" onclick="changeLanguage('ar')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇸🇦</span>
+                                <span class="menu-item-text">العربية</span>
+                            </div>
+                            <span class="menu-item-arrow" id="ar-check"></span>
+                        </div>
+                        <div class="menu-item" onclick="changeLanguage('hi')">
+                            <div class="menu-item-content">
+                                <span style="font-size: 24px; margin-right: 12px;">🇮🇳</span>
+                                <span class="menu-item-text">हिन्दी</span>
+                            </div>
+                            <span class="menu-item-arrow" id="hi-check"></span>
+                        </div>
+                    </div>
+                    <div style="padding: 20px; border-top: 1px solid var(--color-border); background: rgba(76, 175, 80, 0.05);">
+                        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0; text-align: center;">
+                            🤖 Traduction automatique par IA • Contribuez aux traductions dans l'app
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Smart Recommendations Modal -->
+        <div id="recommendationsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">🤖 Recommandations IA</h2>
+                    <button class="modal-close" onclick="closeModal('recommendationsModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); padding: 20px; border-radius: var(--radius-md); margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #1976D2; margin-bottom: 12px;">💡 Suggestions Personnalisées</h3>
+                        <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                            Notre IA analyse vos habitudes, la saison et votre localisation pour vous proposer les meilleurs échanges.
+                        </p>
+                    </div>
+
+                    <div class="impact-card">
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-primary);">🎯 Pour vous aujourd'hui</h4>
+                        <div style="margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(76, 175, 80, 0.1); border-radius: var(--radius-sm); margin-bottom: 8px;">
+                                <span style="font-size: 32px;">🥭</span>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600;">Mangues en saison</div>
+                                    <div style="font-size: 13px; color: var(--color-text-secondary);">3 annonces près de chez vous</div>
+                                </div>
+                                <button class="btn btn-outline btn-small" onclick="filterByCategory('fruits'); closeModal('recommendationsModal')">Voir</button>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-radius: var(--radius-sm); margin-bottom: 8px;">
+                                <span style="font-size: 32px;">🌿</span>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600;">Basilic frais recherché</div>
+                                    <div style="font-size: 13px; color: var(--color-text-secondary);">Basé sur vos échanges précédents</div>
+                                </div>
+                                <button class="btn btn-outline btn-small" onclick="openModal('publishModal'); closeModal('recommendationsModal')">Publier</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="impact-card">
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-secondary);">🔥 Tendances Locales</h4>
+                        <ul style="margin: 0; padding-left: 20px; color: var(--color-text-secondary); font-size: 14px;">
+                            <li style="margin-bottom: 8px;">🥑 Avocats: +40% de demande cette semaine</li>
+                            <li style="margin-bottom: 8px;">🍅 Tomates: Surplus de production signalé</li>
+                            <li style="margin-bottom: 8px;">🫑 Christophines: Pic de disponibilité</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: rgba(156, 39, 176, 0.1); padding: 16px; border-radius: var(--radius-sm); margin-top: 20px;">
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #9C27B0;">🎖️ Défi de la semaine</h4>
+                        <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
+                            Partagez 3 produits locaux pour débloquer le badge "Héros Anti-Gaspi" et contribuer à notre objectif communautaire !
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Annonces Modal -->
+        <div id="myAnnoncesModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Mes annonces</h2>
+                    <button class="modal-close" onclick="closeModal('myAnnoncesModal')">×</button>
+                </div>
+                <div class="modal-body" id="myAnnoncesContent" style="padding: 0;">
+                    <!-- Content dynamically loaded -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Modal -->
+        <div id="mapModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Sélectionner la localisation</h2>
+                    <button class="modal-close" onclick="closeModal('mapModal')">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="map-container">
+                        <iframe 
+                            class="map-iframe"
+                            src="https://www.openstreetmap.org/export/embed.html?bbox=-61.0800,14.5900,-60.8000,14.7500&layer=mapnik&marker=14.6097,-60.9728"
+                            allowfullscreen>
+                        </iframe>
+                        <div class="map-marker" onclick="confirmMapLocation()">📍</div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Ou saisissez l'adresse</label>
+                        <input type="text" id="mapSearchInput" class="form-input" placeholder="Rechercher une adresse...">
+                    </div>
+                    <button class="btn btn-primary" onclick="confirmMapLocation()">Confirmer la localisation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedPhotos = [];
+        let selectedLocationData = null;
+        let chatMessages = [];
+        let pendingChatPhoto = null;
+        let userProfilePhoto = null;
+        let userAnnonces = [];
+        let currentLanguage = 'fr';
+        let userProfile = {
+            name: 'Marie Lefèvre',
+            email: 'marie.lefevre@email.com',
+            phone: '06 96 12 34 56',
+            location: 'Fort-de-France, Martinique',
+            bio: 'Jardinière passionnée'
+        };
+        
+        // Sample data
+        let annonces = [
+            {
+                id: 1,
+                title: "Mangues Julie",
+                price: "Gratuit",
+                type: "gratuit",
+                category: "fruits",
+                location: "Fort-de-France",
+                distance: "1.2 km",
+                description: "Belle récolte de mangues Julie bien mûres. Venir chercher sur place.",
+                emoji: "🥭",
+                user: "Marie L.",
+                userPhoto: null,
+                date: "Il y a 2h"
+            },
+            {
+                id: 2,
+                title: "Tomates créoles",
+                price: "3€/kg",
+                type: "vente",
+                category: "legumes",
+                location: "Le Lamentin",
+                distance: "5.3 km",
+                description: "Tomates fraîches du jardin, cultivées sans pesticides.",
+                emoji: "🍅",
+                user: "Jean-Pierre M.",
+                date: "Il y a 4h"
+            },
+            {
+                id: 3,
+                title: "Avocat",
+                price: "Échange",
+                type: "echange",
+                category: "fruits",
+                location: "Schoelcher",
+                distance: "3.8 km",
+                description: "Avocats mûrs à point. Échange contre légumes ou fruits.",
+                emoji: "🥑",
+                user: "Sophie D.",
+                date: "Il y a 1 jour"
+            },
+            {
+                id: 4,
+                title: "Ignames",
+                price: "4€/kg",
+                type: "vente",
+                category: "legumes",
+                location: "Saint-Joseph",
+                distance: "12 km",
+                description: "Ignames de qualité, fraîchement récoltées.",
+                emoji: "🥔",
+                user: "André B.",
+                date: "Il y a 6h"
+            },
+            {
+                id: 5,
+                title: "Christophines",
+                price: "Gratuit",
+                type: "gratuit",
+                category: "legumes",
+                location: "Fort-de-France",
+                distance: "2.5 km",
+                description: "Trop de christophines cette année ! À venir chercher.",
+                emoji: "🫑",
+                user: "Claire T.",
+                date: "Il y a 3h"
+            },
+            {
+                id: 6,
+                title: "Bananes plantain",
+                price: "2€/kg",
+                type: "vente",
+                category: "fruits",
+                location: "Rivière-Salée",
+                distance: "8 km",
+                description: "Bananes plantain bio de mon jardin.",
+                emoji: "🍌",
+                user: "Marc F.",
+                date: "Il y a 5h"
+            }
+        ];
+
+        let currentFilter = 'all';
+        let currentSearchTerm = '';
+
+        // Initialize app
+        function initApp() {
+            renderAnnonces();
+        }
+
+        // Screen navigation
+        function showScreen(screen) {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('signupScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+
+            if (screen === 'login') {
+                document.getElementById('loginScreen').classList.remove('hidden');
+            } else if (screen === 'signup') {
+                document.getElementById('signupScreen').classList.remove('hidden');
+            } else if (screen === 'main') {
+                document.getElementById('mainApp').classList.remove('hidden');
+            }
+        }
+
+        // Handle login
+        function handleLogin(event) {
+            event.preventDefault();
+            showScreen('main');
+            initApp();
+        }
+
+        // Handle signup
+        function handleSignup(event) {
+            event.preventDefault();
+            showScreen('main');
+            initApp();
+        }
+
+        // Render annonces
+        function renderAnnonces() {
+            const container = document.getElementById('annoncesList');
+            const filtered = annonces.filter(annonce => {
+                const matchesCategory = currentFilter === 'all' || annonce.type === currentFilter || annonce.category === currentFilter;
+                const matchesSearch = currentSearchTerm === '' || 
+                    annonce.title.toLowerCase().includes(currentSearchTerm.toLowerCase()) ||
+                    annonce.description.toLowerCase().includes(currentSearchTerm.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">Aucune annonce trouvée</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(annonce => `
+                <div class="annonce-card" onclick="viewAnnonce(${annonce.id})">
+                    <div class="annonce-image">
+                        ${annonce.photos && annonce.photos.length > 0 ? 
+                            `<img src="${annonce.photos[0]}" alt="${annonce.title}">` : 
+                            annonce.emoji
+                        }
+                        ${annonce.type === 'gratuit' ? '<div class="annonce-badge">Gratuit</div>' : ''}
+                        ${annonce.type === 'echange' ? '<div class="annonce-badge">Échange</div>' : ''}
+                    </div>
+                    <div class="annonce-content">
+                        <div class="annonce-header">
+                            <div>
+                                <div class="annonce-title">${annonce.title}</div>
+                                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-secondary); margin-top: 4px;">
+                                    ${annonce.userPhoto ? 
+                                        `<img src="${annonce.userPhoto}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid var(--color-border);" alt="Photo ${annonce.user}">` :
+                                        `<div style="width: 24px; height: 24px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px;">${annonce.user.charAt(0)}</div>`
+                                    }
+                                    <span>${annonce.user}</span>
+                                </div>
+                            </div>
+                            <div class="annonce-price">${annonce.price}</div>
+                        </div>
+                        <div class="annonce-description">${annonce.description}</div>
+                        <div class="annonce-meta">
+                            <div class="meta-item">
+                                <span>📍</span>
+                                <span>${annonce.location}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>🚶</span>
+                                <span>${annonce.distance}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>🕐</span>
+                                <span>${annonce.date}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter by category
+        function filterByCategory(category) {
+            currentFilter = category;
+            
+            // Update active tab
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderAnnonces();
+        }
+
+        // Filter annonces by search
+        function filterAnnonces(searchTerm) {
+            currentSearchTerm = searchTerm;
+            renderAnnonces();
+        }
+
+        // View annonce details
+        function viewAnnonce(id) {
+            const annonce = annonces.find(a => a.id === id);
+            
+            let photosHTML = '';
+            if (annonce.photos && annonce.photos.length > 0) {
+                photosHTML = annonce.photos.map(photo => 
+                    `<img src="${photo}" style="width: 100%; height: 250px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 8px;" alt="Photo produit">`
+                ).join('');
+            } else {
+                photosHTML = `<div style="width: 100%; height: 250px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); display: flex; align-items: center; justify-content: center; font-size: 80px; border-radius: var(--radius-md); margin-bottom: 16px;">${annonce.emoji}</div>`;
+            }
+            
+            const content = `
+                <div style="padding: 20px;">
+                    ${photosHTML}
+                    
+                    <div style="background: white; padding: 20px; border-radius: var(--radius-md); margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <h2 style="font-size: 24px; font-weight: 600; color: var(--color-text);">${annonce.title}</h2>
+                            <div style="font-size: 24px; font-weight: bold; color: var(--color-primary);">${annonce.price}</div>
+                        </div>
+                        
+                        ${annonce.type === 'gratuit' ? '<div style="display: inline-block; background: var(--color-secondary); color: white; padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: bold; margin-bottom: 12px;">Gratuit</div>' : ''}
+                        ${annonce.type === 'echange' ? '<div style="display: inline-block; background: var(--color-secondary); color: white; padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: bold; margin-bottom: 12px;">Échange</div>' : ''}
+                        
+                        <div style="display: flex; gap: 16px; margin-bottom: 16px; font-size: 14px; color: var(--color-text-secondary); flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span>📍</span>
+                                <span>${annonce.location}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span>🚶</span>
+                                <span>${annonce.distance}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span>🕐</span>
+                                <span>${annonce.date}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="border-top: 1px solid var(--color-border); padding-top: 16px; margin-bottom: 16px;">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Description</h3>
+                            <p style="color: var(--color-text-secondary); line-height: 1.6;">${annonce.description}</p>
+                        </div>
+                        
+                        <div style="border-top: 1px solid var(--color-border); padding-top: 16px;">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Vendeur</h3>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                ${annonce.userPhoto ?
+                                    `<img src="${annonce.userPhoto}" style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);" alt="Photo ${annonce.user}">` :
+                                    `<div style="width: 56px; height: 56px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 28px;">${annonce.user.charAt(0)}</div>`
+                                }
+                                <div>
+                                    <div style="font-weight: 600;">${annonce.user}</div>
+                                    <div style="font-size: 13px; color: var(--color-text-secondary);">Membre depuis 2024</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('annonceDetailContent').innerHTML = content;
+            window.currentAnnonceUser = annonce.user;
+            openModal('annonceDetailModal');
+        }
+        
+        // Contact seller from annonce detail
+        function contactSeller() {
+            closeModal('annonceDetailModal');
+            openChat(window.currentAnnonceUser);
+        }
+
+        // Switch bottom tab
+        function switchTab(tab) {
+            // Update active nav item
+            const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+
+            // Show/hide content
+            document.getElementById('annoncesList').classList.add('hidden');
+            document.getElementById('profileView').classList.add('hidden');
+            document.getElementById('impactView').classList.add('hidden');
+            document.getElementById('gardenView').classList.add('hidden');
+
+            if (tab === 'home') {
+                document.getElementById('annoncesList').classList.remove('hidden');
+            } else if (tab === 'search') {
+                document.getElementById('annoncesList').classList.remove('hidden');
+                document.querySelector('.search-bar input').focus();
+            } else if (tab === 'profile') {
+                document.getElementById('profileView').classList.remove('hidden');
+            } else if (tab === 'impact') {
+                document.getElementById('impactView').classList.remove('hidden');
+            } else if (tab === 'garden') {
+                document.getElementById('gardenView').classList.remove('hidden');
+            }
+        }
+        
+        // Update garden advice with AI simulation
+        function updateGardenAdvice() {
+            const topic = document.getElementById('gardenTopicSelect').value;
+            const content = document.getElementById('gardenAdviceContent');
+            
+            const advices = {
+                planting: {
+                    title: '🌱 Calendrier de Plantation en Martinique',
+                    text: `En Martinique, le climat tropical permet de cultiver toute l'année, mais certaines périodes sont plus favorables :
+
+<strong>Saison des pluies (Juin-Novembre)</strong> : Idéale pour les légumes-feuilles (laitue, épinards), les tomates, les concombres et les courges. L'humidité favorise la germination.
+
+<strong>Saison sèche (Décembre-Mai)</strong> : Privilégiez les plantes résistantes comme les aubergines, les piments, et les herbes aromatiques. Arrosage plus fréquent nécessaire.
+
+<strong>Conseil IA</strong> : Plantez vos tomates en début de saison sèche (janvier-février) pour une récolte optimale en avril-mai. Préparez votre sol avec du compost local 2 semaines avant plantation.`,
+                    tips: ['💡 Plantez tôt le matin ou en fin d\'après-midi', '🌡️ Vérifiez que la température du sol est >20°C', '💧 Arrosez immédiatement après plantation']
+                },
+                watering: {
+                    title: '💧 Optimiser l\'Arrosage en Climat Tropical',
+                    text: `L'arrosage en Martinique nécessite une adaptation au climat humide :
+
+<strong>Fréquence</strong> : En saison sèche, arrosez 2 fois par jour (matin et soir). En saison des pluies, réduisez selon les précipitations naturelles.
+
+<strong>Technique</strong> : Privilégiez l'arrosage au pied des plantes pour éviter les maladies fongiques. Utilisez un paillage pour conserver l'humidité.
+
+<strong>Conseil IA</strong> : Installez un système de récupération d'eau de pluie - la Martinique reçoit 2000mm/an ! Testez l'humidité du sol à 5cm de profondeur avant d'arroser.`,
+                    tips: ['⏰ Arrosez entre 6h-8h et 17h-19h', '🌊 Évitez l\'eau stagnante (favorise moustiques)', '🍃 Surveillez le flétrissement des feuilles']
+                },
+                pests: {
+                    title: '🐛 Lutter Naturellement contre les Nuisibles',
+                    text: `Les solutions écologiques adaptées au climat martiniquais :
+
+<strong>Prévention</strong> : Rotation des cultures, plantes compagnes (basilic repousse les mouches), biodiversité au jardin.
+
+<strong>Traitements naturels</strong> :
+- Pucerons : Savon noir dilué + eau
+- Chenilles : Bacillus thuringiensis (bactérie naturelle)
+- Limaces : Coquilles d'œufs broyées, bière
+
+<strong>Conseil IA</strong> : Plantez des œillets d'Inde entre vos tomates - ils repoussent naturellement les nématodes. Attirez les prédateurs naturels (coccinelles, grenouilles) avec un point d'eau.`,
+                    tips: ['🔍 Inspectez vos plantes 2 fois/semaine', '🌿 Favorisez la biodiversité', '❌ Évitez les pesticides chimiques (RGPD local)']
+                },
+                fertilizer: {
+                    title: '🌿 Fertilisation Naturelle et Locale',
+                    text: `Valorisez les ressources locales pour enrichir votre sol :
+
+<strong>Compost maison</strong> : Épluchures de fruits tropicaux (mangues, bananes), déchets verts. Maturité en 3-4 mois sous climat tropical.
+
+<strong>Amendements locaux</strong> :
+- Cendre de bois (potassium)
+- Marc de café (azote)
+- Fumier de poule bien décomposé
+- Algues marines (si accès côte)
+
+<strong>Conseil IA</strong> : Les peaux de bananes sont riches en potassium - enterrez-les au pied des tomates et poivrons. Créez un "thé de compost" en laissant tremper du compost dans l'eau 48h.`,
+                    tips: ['♻️ Compostez 100% de vos déchets verts', '🍌 Utilisez les ressources gratuites locales', '📊 Testez votre sol annuellement']
+                },
+                harvest: {
+                    title: '🥭 Optimiser vos Récoltes',
+                    text: `Calendrier et techniques de récolte en Martinique :
+
+<strong>Signes de maturité</strong> :
+- Mangues : Couleur + léger parfum sucré
+- Tomates : Rouge vif, légèrement molles
+- Avocats : Se détachent facilement de l'arbre
+
+<strong>Timing optimal</strong> : Récoltez le matin après évaporation de la rosée. Les fruits sont plus fermes et se conservent mieux.
+
+<strong>Conseil IA</strong> : Pour les mangues Julie, attendez qu'elles tombent naturellement pour une douceur maximale. Récoltez les tomates légèrement vertes si risque de pluie - elles mûriront à l'intérieur.`,
+                    tips: ['🌅 Récoltez le matin (7h-9h)', '✂️ Utilisez des outils propres et aiguisés', '📦 Manipulez délicatement pour éviter meurtrissures']
+                },
+                tropical: {
+                    title: '🌴 Maîtriser le Jardinage Tropical',
+                    text: `Spécificités de la culture en Martinique :
+
+<strong>Avantages</strong> : Pas de gel, pousse rapide, biodiversité naturelle, multiples récoltes annuelles possibles.
+
+<strong>Défis</strong> : Pluies intenses (érosion), chaleur constante (stress hydrique), forte pression des ravageurs, cyclones.
+
+<strong>Adaptations</strong> : Drainage efficace, paillage épais (10cm), structures résistantes au vent, choix de variétés tropicales.
+
+<strong>Conseil IA</strong> : Créez des buttes surélevées (30-40cm) pour améliorer le drainage en saison des pluies. Privilégiez les variétés créoles adaptées depuis des générations (tomate péyi, piment antillais).`,
+                    tips: ['🏝️ Choisissez des variétés locales résistantes', '💨 Protégez du vent avec haies naturelles', '🌧️ Anticipez la gestion de l\'eau']
+                }
+            };
+            
+            if (!topic) {
+                content.innerHTML = '<p style="text-align: center; color: var(--color-text-secondary); padding: 40px 20px;">Sélectionnez un sujet pour recevoir des conseils personnalisés générés par IA</p>';
+                return;
+            }
+            
+            const advice = advices[topic];
+            const tipsHTML = advice.tips.map(tip => `<li style="margin-bottom: 8px;">${tip}</li>`).join('');
+            
+            content.innerHTML = `
+                <div style="background: white; padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <h4 style="color: var(--color-primary); font-size: 18px; font-weight: 600; margin-bottom: 16px;">${advice.title}</h4>
+                    <div style="color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 20px; white-space: pre-line;">${advice.text}</div>
+                    <div style="background: rgba(76, 175, 80, 0.1); padding: 16px; border-radius: var(--radius-sm); border-left: 4px solid var(--color-primary);">
+                        <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--color-text);">💡 Conseils Pratiques</h5>
+                        <ul style="margin: 0; padding-left: 20px; color: var(--color-text-secondary); font-size: 14px;">
+                            ${tipsHTML}
+                        </ul>
+                    </div>
+                    <div style="margin-top: 16px; padding: 12px; background: rgba(255, 152, 0, 0.1); border-radius: var(--radius-sm); font-size: 13px; color: var(--color-text-secondary); display: flex; align-items: start; gap: 8px;">
+                        <span style="font-size: 16px;">🤖</span>
+                        <span><strong>Génération IA</strong> : Ce conseil est généré en fonction du climat martiniquais et des meilleures pratiques locales.</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Handle publish
+        function handlePublish(event) {
+            event.preventDefault();
+            
+            if (uploadedPhotos.length === 0) {
+                alert('Veuillez ajouter au moins une photo de votre produit.');
+                return;
+            }
+            
+            if (!selectedLocationData) {
+                alert('Veuillez sélectionner une localisation sur la carte.');
+                return;
+            }
+            
+            const form = event.target;
+            const newAnnonce = {
+                id: annonces.length + 1,
+                title: form.querySelector('input[placeholder="Ex: Mangues Julie"]').value,
+                price: form.querySelector('select[required]').selectedIndex === 0 ? 'Gratuit' : 
+                       form.querySelector('select[required]').selectedIndex === 1 ? 'Échange' : 
+                       form.querySelector('input[placeholder="Ex: 5€/kg"]').value || '5€/kg',
+                type: form.querySelector('select[required]').selectedIndex === 0 ? 'gratuit' : 
+                      form.querySelector('select[required]').selectedIndex === 1 ? 'echange' : 'vente',
+                category: form.querySelector('.form-select').value.includes('Fruits') ? 'fruits' : 'legumes',
+                location: selectedLocationData,
+                distance: '0.5 km',
+                description: form.querySelector('.form-textarea').value,
+                emoji: form.querySelector('.form-select').value.includes('Fruits') ? '🍊' : '🥕',
+                user: 'Marie Lefèvre',
+                userPhoto: userProfilePhoto,
+                date: 'À l\'instant',
+                photos: uploadedPhotos.map(p => p.data)
+            };
+            
+            annonces.unshift(newAnnonce);
+            userAnnonces.push(newAnnonce);
+            updateUserAnnoncesCount();
+            
+            closeModal('publishModal');
+            renderAnnonces();
+            
+            // Show success message
+            setTimeout(() => {
+                alert('Votre annonce a été publiée avec succès ! 🎉\n\n' + uploadedPhotos.length + ' photo(s) ajoutée(s)\nLocalisation: ' + selectedLocationData);
+            }, 300);
+            
+            // Reset form
+            form.reset();
+            uploadedPhotos = [];
+            selectedLocationData = null;
+            document.getElementById('photoPreviewContainer').innerHTML = '';
+            document.getElementById('locationDisplay').classList.add('hidden');
+        }
+
+        // Handle photo upload
+        function handlePhotoUpload(event) {
+            const files = event.target.files;
+            const container = document.getElementById('photoPreviewContainer');
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    uploadedPhotos.push({
+                        name: file.name,
+                        data: e.target.result
+                    });
+                    
+                    const preview = document.createElement('div');
+                    preview.style.position = 'relative';
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" class="photo-preview" alt="Photo preview">
+                        <button type="button" class="photo-remove" onclick="removePhoto(${uploadedPhotos.length - 1})">×</button>
+                    `;
+                    container.appendChild(preview);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove photo
+        function removePhoto(index) {
+            uploadedPhotos.splice(index, 1);
+            const container = document.getElementById('photoPreviewContainer');
+            container.children[index].remove();
+        }
+
+        // Select location on map
+        function selectLocationOnMap() {
+            openModal('mapModal');
+        }
+
+        // Confirm map location
+        function confirmMapLocation() {
+            const searchInput = document.getElementById('mapSearchInput').value;
+            const location = searchInput || 'Fort-de-France, Martinique';
+            
+            selectedLocationData = location;
+            document.getElementById('locationInput').value = location;
+            document.getElementById('selectedLocation').textContent = location;
+            document.getElementById('locationDisplay').classList.remove('hidden');
+            
+            closeModal('mapModal');
+        }
+
+        // Clear location
+        function clearLocation() {
+            selectedLocationData = null;
+            document.getElementById('locationDisplay').classList.add('hidden');
+            document.getElementById('locationInput').value = '';
+        }
+
+        // Open chat
+        function openChat(userName) {
+            closeModal('messagesModal');
+            document.getElementById('chatUserName').textContent = userName;
+            openModal('chatModal');
+        }
+
+        // Close chat
+        function closeChat() {
+            closeModal('chatModal');
+            openModal('messagesModal');
+        }
+
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message === '') return;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            const now = new Date();
+            const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble chat-bubble-sent';
+            bubble.innerHTML = `
+                <div>${message}</div>
+                <div class="chat-bubble-time">${time}</div>
+            `;
+            
+            chatMessages.appendChild(bubble);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            input.value = '';
+            
+            // Simulate response after 2 seconds
+            setTimeout(() => {
+                const responseBubble = document.createElement('div');
+                responseBubble.className = 'chat-bubble chat-bubble-received';
+                responseBubble.innerHTML = `
+                    <div>Message reçu ! Je vous réponds bientôt.</div>
+                    <div class="chat-bubble-time">${time}</div>
+                `;
+                chatMessages.appendChild(responseBubble);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 2000);
+        }
+
+        // Handle chat key press
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Handle profile photo upload
+        function handleProfilePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                userProfilePhoto = e.target.result;
+                
+                // Update profile avatar
+                const avatar = document.getElementById('profileAvatar');
+                avatar.style.backgroundImage = `url(${e.target.result})`;
+                avatar.style.backgroundSize = 'cover';
+                avatar.style.backgroundPosition = 'center';
+                avatar.innerHTML = '<div style="position: absolute; bottom: 0; right: 0; background: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--color-primary); font-size: 16px;">📷</div>';
+                
+                // Update top bar avatar
+                const topBarAvatar = document.getElementById('topBarAvatar');
+                topBarAvatar.style.backgroundImage = `url(${e.target.result})`;
+                topBarAvatar.style.backgroundSize = 'cover';
+                topBarAvatar.style.backgroundPosition = 'center';
+                topBarAvatar.innerHTML = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Show my annonces
+        function showMyAnnonces() {
+            const content = document.getElementById('myAnnoncesContent');
+            
+            if (userAnnonces.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">Vous n'avez pas encore publié d'annonce</div>
+                        <button class="btn btn-primary" onclick="closeModal('myAnnoncesModal'); openModal('publishModal')">Publier une annonce</button>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = userAnnonces.map(annonce => `
+                    <div class="message-item" onclick="viewAnnonce(${annonce.id}); closeModal('myAnnoncesModal')">
+                        <div style="width: 60px; height: 60px; border-radius: var(--radius-sm); background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0;">
+                            ${annonce.emoji}
+                        </div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-name">${annonce.title}</span>
+                                <span class="message-time">${annonce.price}</span>
+                            </div>
+                            <div class="message-text">${annonce.description}</div>
+                            <div style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">
+                                📍 ${annonce.location} • ${annonce.date}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            openModal('myAnnoncesModal');
+        }
+
+        // Update user annonces count
+        function updateUserAnnoncesCount() {
+            document.getElementById('userAnnoncesCount').textContent = userAnnonces.length;
+        }
+
+        // Save profile changes
+        function saveProfileChanges() {
+            const form = document.querySelector('#accountModal form');
+            const formData = new FormData(form);
+            
+            // Update user profile
+            userProfile.name = form.querySelector('input[type="text"]').value;
+            userProfile.email = form.querySelector('input[type="email"]').value;
+            userProfile.phone = form.querySelector('input[type="tel"]').value;
+            userProfile.location = form.querySelectorAll('input[type="text"]')[1].value;
+            userProfile.bio = form.querySelector('textarea').value;
+            
+            // Update profile display
+            document.querySelector('.profile-name').textContent = userProfile.name;
+            document.querySelector('.profile-bio').textContent = userProfile.bio + ' • ' + userProfile.location.split(',')[0];
+            
+            // Show success message
+            const originalText = event.target.textContent;
+            event.target.textContent = '✓ Enregistré !';
+            event.target.style.background = 'var(--color-success)';
+            
+            setTimeout(() => {
+                event.target.textContent = originalText;
+                event.target.style.background = 'var(--color-primary)';
+                closeModal('accountModal');
+            }, 1500);
+        }
+
+        // Change password
+        function changePassword(event) {
+            event.preventDefault();
+            const form = event.target;
+            const currentPassword = form.querySelector('input[type="password"]').value;
+            const newPassword = form.querySelectorAll('input[type="password"]')[1].value;
+            const confirmPassword = form.querySelectorAll('input[type="password"]')[2].value;
+            
+            if (newPassword !== confirmPassword) {
+                alert('Les nouveaux mots de passe ne correspondent pas.');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                alert('Le mot de passe doit contenir au moins 8 caractères.');
+                return;
+            }
+            
+            // Simulate password change
+            setTimeout(() => {
+                alert('Mot de passe modifié avec succès ! 🔐\n\nVous serez déconnecté pour des raisons de sécurité.');
+                closeModal('changePasswordModal');
+                showScreen('welcome');
+            }, 1000);
+        }
+
+        // Change language
+        function changeLanguage(langCode) {
+            // Update current language
+            currentLanguage = langCode;
+            
+            // Clear all checkmarks
+            document.querySelectorAll('[id$="-check"]').forEach(el => el.textContent = '');
+            
+            // Add checkmark to selected language
+            document.getElementById(langCode + '-check').textContent = '✓';
+            
+            // Simulate translation (in real app, this would trigger full translation)
+            const translations = {
+                'en': {
+                    welcomeTitle: 'Welcome to Pikit',
+                    welcomeSubtitle: 'Share local fruits and vegetables with your community',
+                    login: 'Sign In',
+                    signup: 'Create Account'
+                },
+                'es': {
+                    welcomeTitle: 'Bienvenido a Pikit',
+                    welcomeSubtitle: 'Comparte frutas y verduras locales con tu comunidad',
+                    login: 'Iniciar Sesión',
+                    signup: 'Crear Cuenta'
+                },
+                'pt': {
+                    welcomeTitle: 'Bem-vindo ao Pikit',
+                    welcomeSubtitle: 'Compartilhe frutas e vegetais locais com sua comunidade',
+                    login: 'Entrar',
+                    signup: 'Criar Conta'
+                }
+            };
+            
+            // Apply basic translations (demo)
+            if (translations[langCode]) {
+                const trans = translations[langCode];
+                document.querySelector('.welcome-title').textContent = trans.welcomeTitle;
+                document.querySelector('.welcome-subtitle').textContent = trans.welcomeSubtitle;
+            }
+            
+            // Close modal and show confirmation
+            closeModal('languageModal');
+            setTimeout(() => {
+                const langNames = {
+                    'fr': 'Français',
+                    'en': 'English',
+                    'es': 'Español',
+                    'pt': 'Português',
+                    'de': 'Deutsch',
+                    'it': 'Italiano',
+                    'ja': '日本語',
+                    'zh': '中文',
+                    'ar': 'العربية',
+                    'hi': 'हिन्दी'
+                };
+                alert('🌍 Langue changée: ' + langNames[langCode] + '\n\n' + 
+                      '🤖 Traduction IA activée.\nL\'interface va se mettre à jour progressivement.');
+            }, 300);
+        }
+
+        // Enhanced search with AI suggestions
+        function enhancedSearch(query) {
+            // AI-powered search suggestions
+            const suggestions = [
+                { text: 'mangues près de moi', category: 'fruits', icon: '🥭' },
+                { text: 'légumes gratuits', category: 'gratuit', icon: '🥕' },
+                { text: 'échange tomates', category: 'echange', icon: '🍅' },
+                { text: 'herbes aromatiques', category: 'legumes', icon: '🌿' }
+            ];
+            
+            if (query.length > 2) {
+                // In real app: API call to get AI suggestions
+                console.log('🔍 Recherche IA pour: ' + query);
+            }
+        }
+
+        // Smart notification system
+        function showSmartNotification(type, message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--color-success);
+                color: white;
+                padding: 12px 20px;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-md);
+                z-index: 300;
+                max-width: 350px;
+                text-align: center;
+                font-weight: 500;
+                animation: slideDown 0.3s ease-out;
+            `;
+            
+            const icons = {
+                success: '✅',
+                info: 'ℹ️',
+                warning: '⚠️',
+                ai: '🤖'
+            };
+            
+            notification.innerHTML = `${icons[type] || '📢'} ${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideUp 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateX(-50%) translateY(0); opacity: 1; }
+                to { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+            }
+            
+            .pulse {
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            .bounce {
+                animation: bounce 1s infinite;
+            }
+            
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // AI-powered auto-suggestions for new listings
+        function aiSuggestionsForListing() {
+            const season = new Date().getMonth();
+            const location = userProfile.location;
+            
+            // Seasonal AI suggestions
+            const seasonalSuggestions = {
+                // Winter (Dec, Jan, Feb)
+                11: ['Avocats', 'Citrons', 'Christophines'],
+                0: ['Avocats', 'Citrons', 'Christophines'], 
+                1: ['Avocats', 'Citrons', 'Christophines'],
+                // Spring (Mar, Apr, May)
+                2: ['Tomates', 'Aubergines', 'Piments'],
+                3: ['Tomates', 'Aubergines', 'Piments'],
+                4: ['Mangues', 'Tomates', 'Concombres'],
+                // Summer (Jun, Jul, Aug) 
+                5: ['Mangues', 'Bananes', 'Papayes'],
+                6: ['Mangues', 'Bananes', 'Papayes'],
+                7: ['Mangues', 'Bananes', 'Papayes'],
+                // Fall (Sep, Oct, Nov)
+                8: ['Ignames', 'Patates douces', 'Choux'],
+                9: ['Ignames', 'Patates douces', 'Choux'],
+                10: ['Avocats', 'Breadfruits', 'Goyaves']
+            };
+            
+            return seasonalSuggestions[season] || ['Produits locaux'];
+        }
+
+        // Enhanced welcome experience for new users
+        function enhancedOnboarding() {
+            showSmartNotification('ai', '🌟 Pikit Global vous souhaite la bienvenue ! Découvrez votre communauté locale.');
+            
+            // Simulate location detection
+            setTimeout(() => {
+                showSmartNotification('info', '📍 Nous avons trouvé 12 producteurs près de chez vous !');
+            }, 3000);
+        }
+
+        // Override original initApp to include enhancements
+        const originalInitApp = initApp;
+        initApp = function() {
+            originalInitApp();
+            enhancedOnboarding();
+        };
+
+        // Override handleLogin to include smart features
+        const originalHandleLogin = handleLogin;
+        handleLogin = function(event) {
+            originalHandleLogin(event);
+            
+            // Add welcome back message with AI insights
+            setTimeout(() => {
+                showSmartNotification('ai', '🤖 Bon retour ! 3 nouvelles annonces correspondent à vos intérêts.');
+            }, 1000);
+        };
+
+        // Enhanced search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('.search-bar input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    enhancedSearch(e.target.value);
+                });
+            }
+        });
+
+        // Close modal on background click
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
