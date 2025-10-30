@@ -185,20 +185,23 @@
 
         .annonce-image {
             width: 100%;
-            height: 200px;
-            object-fit: cover;
+            aspect-ratio: 4/5;
+  			max-width: 100%;
+            object-fit:cover;
             background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
-            display: flex;
+            display:flex;
             align-items: center;
             justify-content: center;
             font-size: 64px;
-            position: relative;
+            position:relative;
         }
 
         .annonce-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            width:100%; 
+			aspect-ratio: 4/5;
+  			max-width: 100%;
+            object-fit:cover;
+			display:block;
         }
 
         .annonce-badge {
@@ -392,6 +395,7 @@
         .modal-body {
             padding: 20px;
         }
+		
 
         .form-group {
             margin-bottom: 20px;
@@ -2129,7 +2133,8 @@
                 location: "Fort-de-France",
                 distance: "1.2 km",
                 description: "Belle récolte de mangues Julie bien mûres. Venir chercher sur place.",
-                emoji: "🥭",
+				photos: ["img/photo-mangue.jpeg"],
+                emoji: "",
                 user: "Marie L.",
                 userPhoto: null,
                 date: "Il y a 2h"
@@ -2143,7 +2148,8 @@
                 location: "Le Lamentin",
                 distance: "5.3 km",
                 description: "Tomates fraîches du jardin, cultivées sans pesticides.",
-                emoji: "🍅",
+                photos: ["img/photo-tomates.jpeg"],
+				emoji: "",
                 user: "Jean-Pierre M.",
                 date: "Il y a 4h"
             },
@@ -2156,7 +2162,8 @@
                 location: "Schoelcher",
                 distance: "3.8 km",
                 description: "Avocats mûrs à point. Échange contre légumes ou fruits.",
-                emoji: "🥑",
+                photos: ["img/photo-avocat.jpeg"],
+				emoji: "",
                 user: "Sophie D.",
                 date: "Il y a 1 jour"
             },
@@ -2169,7 +2176,8 @@
                 location: "Saint-Joseph",
                 distance: "12 km",
                 description: "Ignames de qualité, fraîchement récoltées.",
-                emoji: "🥔",
+                photos: ["img/photo-ignames.jpg"],
+				emoji: "",
                 user: "André B.",
                 date: "Il y a 6h"
             },
@@ -2182,7 +2190,8 @@
                 location: "Fort-de-France",
                 distance: "2.5 km",
                 description: "Trop de christophines cette année ! À venir chercher.",
-                emoji: "🫑",
+                photos: ["img/photo-christophine.jpeg"],
+				emoji: "",
                 user: "Claire T.",
                 date: "Il y a 3h"
             },
@@ -2195,7 +2204,8 @@
                 location: "Rivière-Salée",
                 distance: "8 km",
                 description: "Bananes plantain bio de mon jardin.",
-                emoji: "🍌",
+                photos: ["img/photo-bananes-plantain.jpg"],
+				emoji: "",
                 user: "Marc F.",
                 date: "Il y a 5h"
             }
@@ -2329,7 +2339,7 @@
             let photosHTML = '';
             if (annonce.photos && annonce.photos.length > 0) {
                 photosHTML = annonce.photos.map(photo => 
-                    `<img src="${photo}" style="width: 100%; height: 250px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 8px;" alt="Photo produit">`
+                    `<img src="${photo}" style="width: 100%; ratio:4/5; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 8px;" alt="Photo produit">`
                 ).join('');
             } else {
                 photosHTML = `<div style="width: 100%; height: 250px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); display: flex; align-items: center; justify-content: center; font-size: 80px; border-radius: var(--radius-md); margin-bottom: 16px;">${annonce.emoji}</div>`;
